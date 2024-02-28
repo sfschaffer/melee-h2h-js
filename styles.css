@@ -1,0 +1,41 @@
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+}
+
+.inputs{
+    display:grid;
+    height:150px;
+    width:100%;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid grey;
+    background-color: #c9c9c9;
+    box-shadow:0px 0px 5px gray;
+}
+
+.players{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+form{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items: center;
+    gap:25px;
+}
+
+input{
+    border-radius:5px;
+    border:1px solid black;
+}
+
+#submit{
+    width:64px;
+}
