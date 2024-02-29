@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500&display=swap');
+
 *{
     box-sizing:border-box;
 }
 
 body{
     margin:0;
+    font-family:"Montserrat", sans-serif;
 }
 
 .inputs{
@@ -37,5 +40,73 @@ input{
 }
 
 #submit{
-    width:64px;
+    width:128px;
+    height:36px;
+    border-radius:8px;
+    background-color: lightgray;
+    border:1px solid black;
+
 }
+
+.record{
+    display:flex;
+    justify-content: center;
+    font-weight:bold;
+    margin:24px;
+    font-size:1.5rem;
+}
+
+.output{
+    margin-top:24px;
+    display:grid;
+    grid-template-columns: 66vw;
+    row-gap:12px;
+    justify-content:center;
+}
+
+.card{
+    display:grid;
+    grid-template-rows:.15fr .85fr;
+    border:2px solid black;
+    font-weight:bold;
+}
+
+.card.win{
+    background-color: forestgreen;
+}
+
+.card.loss{
+    background-color:red;
+}
+
+.win .scoreline-entry{
+    background-color: forestgreen;
+}
+
+.loss .scoreline-entry{
+    background-color:red;
+}
+
+.header{
+    display:grid;
+    justify-content:center;
+    grid-row: 1 / 2;
+    padding:5px;
+    border-bottom: 1px solid black
+}
+
+.scoreline{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    background-color: black;
+    grid-gap: 1px;
+}
+
+.scoreline-entry{
+    display:flex;
+    justify-content: space-between;
+    padding:24px;
+    gap:24px;
+    background-color: forestgreen;
+}
+

@@ -8,9 +8,13 @@ const data = `query Sets ($playerId: ID!, $page: Int!, $perPage: Int!){
         nodes {
           id
           displayScore
+          fullRoundText
           event{
             videogame{
               id
+            }
+            tournament{
+                name
             }
           }
           }
@@ -18,10 +22,10 @@ const data = `query Sets ($playerId: ID!, $page: Int!, $perPage: Int!){
       }
     }`
 
-console.log(ids[0]);
 
 document.querySelector("#submit").addEventListener("click", function(e){
     e.preventDefault();
+    document.querySelector(".record").textContent = "Loading..."
     runH2H();
 });
 
@@ -40,8 +44,6 @@ function getPlayerIds(){
             secondID = element.id;
         }
     });
-
-    console.log(firstID, secondID);
 
     return [firstID, secondID];
 }
@@ -65,10 +67,7 @@ async function sendRequest(playerID, pageNum){
     return response.json();
 }
 
-function parseWinStr(winStr){
-    const player1 = document.querySelector("#player1").value;
-    const player2 = document.querySelector("#player2").value;
-
+function parseWinStr(winStr, player1, player2){
     if(!winStr){
         return null;
     }
@@ -98,24 +97,20 @@ function parseWinStr(winStr){
 
         let winnerId;
         if(score > opScore || score == "W"){
-            winnerId = 1;
+            winnerId = {winner: 1, scoreLine: score + "-" + opScore};
         }
         else{
-            winnerId = 2;
+            winnerId = {winner: 2, scoreLine: score + "-" + opScore};
         }
 
         return winnerId;
     }
 }
 
-async function runH2H(){
-    let players = getPlayerIds();
+async function searchPlayerHistory(sets, checkedPlayerTag, oppTag, checkedPlayerID, oppID){
     let pageNum = 1;
-    const sets = new Map();
-    let wins = 0;
-    let losses = 0;
     while(true){
-        let page = await sendRequest(players[0], pageNum)
+        let page = await sendRequest(checkedPlayerID, pageNum)
         let nodes;
         if(page.errors){
             const err = document.createElement("div");
@@ -123,27 +118,112 @@ async function runH2H(){
             document.querySelector(".output").appendChild(err);
         }
         nodes = page.data.player.sets.nodes;
-        console.log(nodes.length, pageNum);
         if(nodes.length < 1){
-            console.log(`Wins ${wins} Losses ${losses}`);
             return;
         }
         nodes.forEach(element=>{
             if(!sets.get(element.id) && element.event.videogame.id == 1){
-                let winner = parseWinStr(element.displayScore);
+                let winner = parseWinStr(element.displayScore, checkedPlayerTag, oppTag);
                 if(winner){
-                    console.log(winner, element.displayScore);
-                    if(winner == 1){
-                        wins += 1;
-                    }
-                    else{
-                        losses += 1;
-                    }
+                    sets.set(element.id, {
+                        victor: winner.winner == 1 ? checkedPlayerTag : oppTag,
+                        tournament: element.event.tournament.name,
+                        round: element.fullRoundText,
+                        score: winner.scoreLine
+                    });
                 }
             }
         });
         pageNum += 1;
     }
+}
 
+function createCard(info, player1, player2){
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    const header = document.createElement("div");
+    header.classList.add("header")
+    header.textContent = `${info.tournament} - ${info.round}`;
+
+    const body = document.createElement("div");
+    body.classList.add("scoreline")
+
+    const scoreline1 = document.createElement("div");
+    scoreline1.classList.add("scoreline-entry")
+
+    const scoreline2 = document.createElement("div");
+    scoreline2.classList.add("scoreline-entry")
+
+    const score1 = document.createElement("div");
+    score1.classList.add("score");
+    score1.textContent = `${info.score[0]}`;
+
+    const score2 = document.createElement("div");
+    score2.classList.add("score");
+    score2.textContent = `${info.score[2]}`;
+
+    const name1 = document.createElement("div");
+    name1.classList.add("name");
+    name1.textContent = `${player1}`
+
+    const name2 = document.createElement("div");
+    name2.classList.add("name");
+    name2.textContent = `${player2}`
+
+    scoreline1.appendChild(name1);
+    scoreline1.appendChild(score1);
+
+    scoreline2.appendChild(score2);
+    scoreline2.appendChild(name2);
+
+    body.appendChild(scoreline1);
+    body.appendChild(scoreline2);
+
+    card.appendChild(header);
+    card.appendChild(body);
+
+    if(info.victor == player1){
+        card.classList.add("win");
+    }
+    else{
+        card.classList.add("loss");
+    }
+
+    document.querySelector(".output").appendChild(card);
+}
+//////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////////////
+async function runH2H(){
+    const player1 = document.querySelector("#player1").value;
+    const player2 = document.querySelector("#player2").value;
+    let players = getPlayerIds();
+    const sets = new Map();
+    
+    //search records of both players, some sets appear on one record but not another
+    await searchPlayerHistory(sets, player1, player2, players[0], players[1]);
+    await searchPlayerHistory(sets, player2, player1, players[1], players[1]);
+
+    let wins = 0;
+    let losses = 0;
+    sets.forEach((value, key)=>{
+        createCard(value, player1, player2);
+        if(value.victor == player1){
+            wins += 1;
+        }
+        else{
+            losses += 1;
+        }
+    });
+
+    document.querySelector(".record").innerHTML = `${player1} - ${wins} ` + "&nbsp&nbsp&nbsp&nbsp&nbsp" + `${player2} - ${losses}`;
+
+    console.log(`Wins ${wins} Losses ${losses}`);
+
+    return;
 }
 
