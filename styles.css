@@ -35,8 +35,17 @@ form{
 }
 
 input{
+    position:absolute;
+    left:31.5%;
+    top:49%;
     border-radius:5px;
     border:1px solid black;
+    width:250px
+}
+
+label{
+    position:absolute;
+    top:30%;
 }
 
 #submit{
@@ -110,3 +119,33 @@ input{
     background-color: forestgreen;
 }
 
+.players{
+    position:relative;
+}
+
+.player-list{
+    position:absolute;
+    top:78px;
+    left:31.7%;
+    list-style-type: none;
+    max-height: 200px;
+    overflow-y:auto;
+    background-color: white;
+    padding:0;
+    border-top:1px solid black;
+    border-bottom:1px solid black;
+    width:250px;
+}
+
+.player-list:empty{
+    border:0;
+}
+
+.player-list-entry{
+    cursor:pointer;
+    padding:12px;
+    border-top:1px solid black;
+    border-left:2px solid black;
+    border-right:2px solid black;
+    border-bottom:1px solid black;
+}

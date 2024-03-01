@@ -11,11 +11,13 @@
         <div class="inputs">
             <div class="players">
                 <label for="player1">Player 1</label>
-                <input type="text" name="player1" id="player1" required>
+                <input type="text" name="player1" id="player1" class="player-input" autocomplete="off" required>
+                <ul class="player-list first" ></ul>
             </div>
             <div class="players">
                 <label for="player2">Player 2</label>
-                <input type="text" name="player2" id="player2" required>
+                <input type="text" name="player2" id="player2" class="player-input" autocomplete="off" required>
+                <ul class="player-list second"></ul>
             </div>
         </div>
         <button type="submit" id="submit">Submit</button>

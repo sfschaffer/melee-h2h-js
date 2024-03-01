@@ -22,10 +22,10 @@ const data = `query Sets ($playerId: ID!, $page: Int!, $perPage: Int!){
       }
     }`
 
-
 document.querySelector("#submit").addEventListener("click", function(e){
     e.preventDefault();
-    document.querySelector(".record").textContent = "Loading..."
+    document.querySelector(".record").textContent = "Loading...";
+    document.querySelector(".output").innerHTML = "";
     runH2H();
 });
 
@@ -85,8 +85,8 @@ function parseWinStr(winStr, player1, player2){
     }
 
     else{
-        let player1Exp = new RegExp(player1 + " ");
-        let player2Exp = new RegExp(player2 + " ");
+        let player1Exp = new RegExp("(" + player1 + " )|(" + "(^" + player1 + ")");
+        let player2Exp = new RegExp("(" + player2 + " )|(" + "(^" + player2 + ")");
         let score = winStr[winStr.search(player1Exp) + player1.length + 1];
         let opIndex = winStr.search(player2Exp);
         let opScore  = winStr[opIndex + player2.length + 1];
@@ -118,6 +118,7 @@ async function searchPlayerHistory(sets, checkedPlayerTag, oppTag, checkedPlayer
             document.querySelector(".output").appendChild(err);
         }
         nodes = page.data.player.sets.nodes;
+        console.log(pageNum, nodes.length);
         if(nodes.length < 1){
             return;
         }
@@ -194,8 +195,46 @@ function createCard(info, player1, player2){
 }
 //////////////////////////////////////////////////////////////////
 
+function filterEntries(data, searchText){
+    let filtered = data.filter((x)=>x.tag.toLowerCase().includes(searchText.toLowerCase()));
+    return filtered;
+}
+function createList(names, el, text){
+    el.innerHTML = "";
+    if(text == ""){
+        return;
+    }
+    names.forEach((entry)=>{
+        const listEntry = document.createElement("li");
+        listEntry.classList.add("player-list-entry");
+        listEntry.textContent = entry.tag;
+        let playerLists = document.querySelectorAll(".player-list");
+        listEntry.addEventListener("click", function(){
+            if(el.classList.contains("first")){
+                document.querySelector("#player1").value=listEntry.textContent;
+                el.innerHTML="";
+                return;
+            }
+            else{
+                document.querySelector("#player2").value=listEntry.textContent;
+                el.innerHTML="";
+                return;
+            }
+        });
+        el.appendChild(listEntry);
+    })
+}
+const inputs = document.querySelectorAll(".player-input");
 
+inputs[0].addEventListener("input", function(){
+    let filteredList = filterEntries(ids, inputs[0].value);
+    createList(filteredList, document.querySelector(".first"), inputs[0].value);
+});
 
+inputs[1].addEventListener("input", function(){
+    let filteredList = filterEntries(ids, inputs[1].value);
+    createList(filteredList, document.querySelector(".second"), inputs[1].value)
+});
 
 //////////////////////////////////////////////////////////////////
 async function runH2H(){
