@@ -68,13 +68,13 @@ async function sendRequest(playerID, pageNum){
 }
 
 function parseWinStr(winStr, player1, player2){
-    if(!winStr){
+    if(!winStr || winStr == "DQ"){
         return null;
     }
     //filters out doubles sets
     let doublesFilter = new RegExp("(/ " + player1 + ")|(" + player1 + " /)");
     //filters out crew battles
-    let crewFilter = new RegExp("^Team");
+    let crewFilter = new RegExp(".* (W|L) - .*(W|L)");
 
     if(winStr.match(doublesFilter)){
         return null;
@@ -85,16 +85,31 @@ function parseWinStr(winStr, player1, player2){
     }
 
     else{
-        let player1Exp = new RegExp("(" + player1 + " )|(" + "(^" + player1 + ")");
-        let player2Exp = new RegExp("(" + player2 + " )|(" + "(^" + player2 + ")");
-        let score = winStr[winStr.search(player1Exp) + player1.length + 1];
-        let opIndex = winStr.search(player2Exp);
-        let opScore  = winStr[opIndex + player2.length + 1];
+        let player1Exp = new RegExp("(\\| " + player1 + ")|(" + "^" + player1 + ")|( " + player1 + " [0-9])");
+        let player2Exp = new RegExp("(\\| " + player2 + ")|(" + "^" + player2 + ")|( " + player2 + " [0-9])");
+        let index = winStr.search(player1Exp) + player1.length;
+        let score;
+        console.log(winStr)
+        do{
+            index += 1;
+            score = winStr[index];
+            console.log(index, score);
+        }
+        while(!(score >= "0" && score <= "9"));
 
+        let opIndex = winStr.search(player2Exp);
         if(opIndex == -1){
             return null;
         }
-
+        
+        index = opIndex + player2.length;
+        let opScore;
+        do{
+            index += 1;
+            opScore = winStr[index];
+        }
+        while(!(opScore >= "0" && opScore <= "9"));
+        console.log(winStr);
         let winnerId;
         if(score > opScore || score == "W"){
             winnerId = {winner: 1, scoreLine: score + "-" + opScore};
